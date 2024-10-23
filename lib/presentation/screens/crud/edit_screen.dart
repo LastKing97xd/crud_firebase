@@ -23,9 +23,13 @@ class _EditScreenState extends State<EditScreen> {
   void initState() {
     super.initState();
     nameController.text = widget.nameId; // Inicializar el texto del controlador
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      crudProviderRead = context.read<CrudProvider>();
-    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    //Te permite acceder al context de forma segura después de que el widget se ha montado. Al guardar una referencia a ese Provider en didChangeDependencies(), puedes usar esa referencia más adelante.
+    super.didChangeDependencies();
+    crudProviderRead = context.read<CrudProvider>(); 
   }
 
   @override
@@ -38,8 +42,7 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     final crudProvider = context.watch<CrudProvider>();
-    
-
+  
     return CRUDWidget(
       appBarTitle: 'Edit - FireStore',
       nameController: nameController,
@@ -49,120 +52,19 @@ class _EditScreenState extends State<EditScreen> {
       imageUpload: crudProvider.imageUpload,
       imageUrl: widget.url,
       onSavePressed: () async {
-        if (crudProvider.imageUpload == null) {
-          // Mostrar un mensaje al usuario si no se ha seleccionado una imagen
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Por favor, selecciona una imagen primero.')),
-          );
-        } else {
-          final newImageUrl = await crudProvider.uploadImage(crudProvider.imageUpload!);
-          await crudProvider.updatePeople(widget.id, nameController.text, newImageUrl);
+        String? updatedImageUrl = widget.url; // Inicializar con la URL existente
+        // Si se seleccionó una nueva imagen, subirla y obtener la nueva URL
+        if (crudProvider.imageUpload != null) {
+          updatedImageUrl = await crudProvider.uploadImage(crudProvider.imageUpload!);
         }
-        /*if(widget.url != null){
-          await crudProvider.updatePeople(widget.id, nameController.text , '');
-        }*/
+        // Actualizar la persona con el nuevo nombre y la URL de la imagen (sea la nueva o la existente)
+        await crudProvider.updatePeople(widget.id, nameController.text, updatedImageUrl);
+        // Volver a la pantalla anterior si el contexto sigue montado
         if (context.mounted) {
-            context.pop(); // Volver a la pantalla anterior
-          }
+          context.pop(); 
+        }
       },
       isLoading: crudProvider.isLoading,
     );
   }
 }
-
-
-/*class EditScreen extends StatefulWidget {
-  
-  final String id;
-  final String nameId;
-
-  const EditScreen({super.key, required this.nameId, required this.id});
-
-  @override
-  State<EditScreen> createState() => _EditScreenState();
-}
-
-class _EditScreenState extends State<EditScreen> {
-  TextEditingController nameController = TextEditingController(text: '');  
-
-  @override
-  void dispose() {
-    nameController.dispose();
-    super.dispose();
-  }
-  @override
-  Widget build(BuildContext context) {
-
-    final crudProvider = context.watch<CrudProvider>();
-    final sized = MediaQuery.of(context).size;
-    
-    nameController.text = widget.nameId;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Edit - FireStore'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextField(
-              controller: nameController,
-            ),
-            const SizedBox(height: 10,),
-            ElevatedButton(
-              onPressed: () async{
-                await crudProvider.updatePeople(widget.id,nameController.text);
-                if (context.mounted) context.pop();
-              },         
-              child: const Text('Actualizar')
-            ),
-            const SizedBox(height: 10,),
-            _buildImageDisplay(sized, crudProvider.imageUpload),
-            const SizedBox(height: 10,),
-            ElevatedButton(
-              onPressed: () async {
-                await crudProvider.getImage();
-              }, 
-              child: const Text('Seleccionar Imagen')
-            ),
-            const SizedBox(height: 10,),
-            ElevatedButton(
-              onPressed: () async {
-                final uploader = await crudProvider.uploadImage(crudProvider.imageUpload!);
-                //if(uploader){
-                  if(context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Imagen subida correctamente'))
-                    );
-                  }
-                //}
-              }, 
-              child: const Text('Subir a Firebase')
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageDisplay(Size size, File? imageUpload) {
-    final double containerHeight = size.height * 0.6;
-
-    return Container(
-      height: containerHeight, // Tamaño fijo del contenedor
-      width: double.infinity,  // Ocupa todo el ancho
-      color: Colors.grey[300], // Color de fondo para placeholder
-      child: imageUpload != null 
-        ? Image.file(
-            imageUpload,
-            height: containerHeight,
-            width: double.infinity,
-            fit: BoxFit.cover, // Ajusta la imagen para cubrir el contenedor
-          )
-        : const Icon(Icons.image, size: 100, color: Colors.grey),
-    );
-  }
-}*/

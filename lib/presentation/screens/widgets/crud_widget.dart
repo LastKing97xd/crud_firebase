@@ -58,10 +58,6 @@ class CRUDWidget extends StatelessWidget {
                     onPressed: onSavePressed,
                     child: const Text('Guardar'),
                   ),
-                  /*ElevatedButton(
-                    onPressed: onImageUpload,
-                    child: const Text('Subir a Firebase')
-                  )*/
                 ],
               ),
             ),
@@ -131,7 +127,7 @@ class _ImageView extends StatelessWidget {
               width: double.infinity,
               fit: BoxFit.cover,
             )
-          : imageUrl != null
+          : imageUrl != ''
             ? Image.network(
                 imageUrl!,
                 height: sized.height * 0.6,

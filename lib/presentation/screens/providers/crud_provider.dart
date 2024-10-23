@@ -53,9 +53,6 @@ class CrudProvider extends ChangeNotifier{
 
   Future<void> updatePeople(String uId, String newName, String? imageUrl) async {
     try{  
-      /*if (newImage != null) {
-        imageUrl = await uploadImage(newImage);
-      }*/
       await localStorageRepository.updatePeople( uId, PeopleResponse(name: newName, url: imageUrl).toJson());
       int index = peopleProvider.indexWhere((person) => person.id == uId);
       // Si la persona existe en la lista, actualizarla localmente

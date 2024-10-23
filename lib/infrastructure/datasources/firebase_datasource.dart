@@ -75,7 +75,6 @@ class FirebaseDatasource extends LocalStorageDatasource {
         return null; // Subida fallida
       }
     } catch (e) {
-      // Manejo de errores, por ejemplo, conexión fallida o error en Firebase
       throw Exception('Error subiendo imagen: $e');
     }
   }

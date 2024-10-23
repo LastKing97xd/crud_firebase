@@ -13,7 +13,7 @@ class PeopleResponse {
       url: json['url'],
     );
   
-  // Convierte un PeopleResponse a un Map (por ejemplo, para subirlo a Firebase)
+  // Convierte un PeopleResponse a un Map
   Map<String, dynamic> toJson() {
     return {
       'name': name,
